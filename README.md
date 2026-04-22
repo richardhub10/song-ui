@@ -5,7 +5,7 @@ React + Tailwind + MUI frontend for the Song API assignment.
 ## Live references
 - API repo: https://github.com/richardhub10/song-api
 - UI repo: https://github.com/richardhub10/song-ui
-- API example URL: https://song-api-9fde.onrender.com/velasco/songs
+- API example URL: https://song-api-rde1.onrender.com
 - UI URL: https://song-ui.onrender.com/
 
 ## Local development

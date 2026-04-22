@@ -47,7 +47,7 @@ const fallbackSongs: Song[] = [
   },
 ];
 
-const defaultApiUrl = 'https://song-api-9fde.onrender.com/velasco/songs';
+const defaultApiUrl = 'https://song-api-rde1.onrender.com';
 
 function extractSongs(payload: SongApiResponse | unknown): Song[] {
   if (Array.isArray(payload)) {
@@ -110,5 +110,5 @@ export const appLinks = {
   uiRepo: 'https://github.com/richardhub10/song-ui',
   apiUrl: defaultApiUrl,
   uiUrl: 'https://song-ui.onrender.com/',
-  apiExampleUrl: 'https://song-api-9fde.onrender.com/velasco/songs',
+  apiExampleUrl: 'https://song-api-rde1.onrender.com',
 };
