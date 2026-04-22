@@ -28,18 +28,58 @@ function getEmbedUrl(song?: Song): string | null {
     return null;
   }
 
-  const url = song.videoUrl ?? song.sourceUrl ?? '';
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  const videoId = match?.[1];
+  const videoId = extractYouTubeId(song.videoUrl ?? song.sourceUrl ?? '');
 
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+  return match?.[1] ?? null;
+}
+
+function placeholderForSong(song?: Song): string {
+  return `https://placehold.co/640x360/111111/ffffff?text=${encodeURIComponent(song?.title ?? 'Song UI')}`;
+}
+
 function resolveCover(song?: Song): string {
-  return (
-    song?.thumbnail ??
-    `https://placehold.co/640x360/111111/ffffff?text=${encodeURIComponent(song?.title ?? 'Song UI')}`
-  );
+  if (!song) {
+    return placeholderForSong(undefined);
+  }
+
+  const videoId = extractYouTubeId(song.videoUrl ?? song.sourceUrl ?? '');
+  if (videoId) {
+    return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  }
+
+  if (song.thumbnail && song.thumbnail.trim().length > 0) {
+    return song.thumbnail;
+  }
+
+  return placeholderForSong(song);
+}
+
+function handleCoverError(event: React.SyntheticEvent<HTMLImageElement>, song?: Song) {
+  const image = event.currentTarget;
+  if (image.dataset.fallbackApplied === '1') {
+    image.src = placeholderForSong(song);
+    return;
+  }
+
+  image.dataset.fallbackApplied = '1';
+
+  if (song?.thumbnail && song.thumbnail.trim().length > 0 && image.src !== song.thumbnail) {
+    image.src = song.thumbnail;
+    return;
+  }
+
+  const videoId = extractYouTubeId(song?.videoUrl ?? song?.sourceUrl ?? '');
+  if (videoId) {
+    image.src = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+    return;
+  }
+
+  image.src = placeholderForSong(song);
 }
 
 function App() {
@@ -214,6 +254,7 @@ function App() {
                         <img
                           src={resolveCover(selectedSong ?? undefined)}
                           alt={selectedSong?.title ?? 'Featured song'}
+                          onError={(event) => handleCoverError(event, selectedSong ?? undefined)}
                           className="aspect-video h-full w-full min-h-[360px] object-cover"
                         />
                       )}
@@ -250,6 +291,7 @@ function App() {
                           <img
                             src={resolveCover(song)}
                             alt={song.title}
+                            onError={(event) => handleCoverError(event, song)}
                             className="h-[236px] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                           />
                           <div className="absolute inset-0 rounded-[26px] ring-1 ring-white/10" />
