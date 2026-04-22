@@ -34,17 +34,6 @@ const fallbackSongs: Song[] = [
     videoUrl: 'https://www.youtube.com/watch?v=Zg38zVF9pQk',
     sourceUrl: 'https://www.youtube.com/watch?v=Zg38zVF9pQk',
   },
-  {
-    id: 'halo',
-    title: 'Halo',
-    artist: 'Beyonce',
-    genre: 'Pop',
-    year: '2009',
-    description: 'A fallback card for the search flow and recommendation list.',
-    thumbnail: 'https://i.ytimg.com/vi/bnVUHWCynig/hqdefault.jpg',
-    videoUrl: 'https://www.youtube.com/watch?v=bnVUHWCynig',
-    sourceUrl: 'https://www.youtube.com/watch?v=bnVUHWCynig',
-  },
 ];
 
 const defaultApiUrl = 'https://song-api-rde1.onrender.com';
@@ -86,6 +75,12 @@ function normalizeSong(song: Partial<Song> & Record<string, unknown>, index: num
   };
 }
 
+function shouldExcludeSong(song: Song): boolean {
+  const title = song.title.trim().toLowerCase();
+  const artist = song.artist.trim().toLowerCase();
+  return title === 'halo' && artist === 'beyonce';
+}
+
 export async function loadSongs(): Promise<Song[]> {
   const apiUrl = import.meta.env.VITE_API_URL || defaultApiUrl;
 
@@ -97,7 +92,9 @@ export async function loadSongs(): Promise<Song[]> {
     }
 
     const payload = (await response.json()) as SongApiResponse;
-    const songs = extractSongs(payload).map((song, index) => normalizeSong(song, index));
+    const songs = extractSongs(payload)
+      .map((song, index) => normalizeSong(song, index))
+      .filter((song) => !shouldExcludeSong(song));
 
     return songs.length > 0 ? songs : fallbackSongs;
   } catch {
