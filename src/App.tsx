@@ -82,6 +82,26 @@ function handleCoverError(event: React.SyntheticEvent<HTMLImageElement>, song?: 
   image.src = placeholderForSong(song);
 }
 
+function formatSongMeta(song?: Song): string {
+  if (!song) {
+    return '';
+  }
+
+  const parts = [song.artist];
+  const album = song.album?.trim();
+  const genre = song.genre?.trim();
+
+  if (album && album.toLowerCase() !== genre?.toLowerCase()) {
+    parts.push(album);
+  }
+
+  if (genre) {
+    parts.push(genre);
+  }
+
+  return parts.join(' • ');
+}
+
 function App() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
@@ -214,7 +234,7 @@ function App() {
                       <div>
                         <h2 className="text-[18px] font-black leading-tight">{selectedSong?.title ?? 'Loading...'}</h2>
                         <p className="mt-1 text-xs text-white/65">
-                          {selectedSong ? `${selectedSong.artist} • ${selectedSong.album ?? selectedSong.genre} • ${selectedSong.genre}` : 'Fetching the latest songs from the API'}
+                          {selectedSong ? formatSongMeta(selectedSong) : 'Fetching the latest songs from the API'}
                         </p>
                       </div>
 
@@ -265,7 +285,7 @@ function App() {
                 <div className="border-b border-white/10 pb-2">
                   <p className="text-[18px] font-black leading-none">{selectedSong?.title ?? 'No track selected'}</p>
                   <p className="mt-2 text-sm text-white/80">
-                    {selectedSong ? `${selectedSong.artist} • ${selectedSong.album ?? selectedSong.genre} • ${selectedSong.genre}` : 'Search like YouTube, then click a card in Recommended to play.'}
+                    {selectedSong ? formatSongMeta(selectedSong) : 'Search like YouTube, then click a card in Recommended to play.'}
                   </p>
                   <p className="mt-3 text-[13px] text-white/70">
                     {selectedSong ? selectedSong.description ?? 'Click a recommendation to switch the featured player.' : 'Search like YouTube, then click a card in Recommended to play.'}
@@ -301,8 +321,7 @@ function App() {
                           <p className="text-[15px] font-black leading-tight">{song.title}</p>
                           <p className="mt-1 text-[13px] text-white/80">{song.artist}</p>
                           <p className="mt-1 text-[12px] text-white/55">
-                            {song.album ?? song.genre}
-                            {song.genre ? ` • ${song.genre}` : ''}
+                            {formatSongMeta(song).replace(`${song.artist} • `, '')}
                           </p>
                         </div>
                       </button>
